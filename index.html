@@ -103,7 +103,7 @@ body{font-family:var(--body);-webkit-font-smoothing:antialiased;text-rendering:o
 #hint{position:absolute;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + clamp(18px,4vh,40px));font-size:13px;color:var(--t300);border:1px solid rgba(207,211,236,.25);border-radius:999px;padding:9px 16px 8px;white-space:nowrap;background:rgba(10,15,71,.45);transition:opacity .6s var(--ease)}
 #hint kbd{font-family:var(--display);font-weight:500;font-size:11px;border:1px solid var(--t400);border-radius:2px;padding:2px 6px 1px;margin:0 3px;color:#fff;animation:keyBlink 1s ease-in-out 1.9s 3 both}
 #hint kbd+kbd,#hint kbd:last-of-type{animation-delay:2.4s}
-@keyframes keyBlink{0%,100%{background:transparent;border-color:var(--t400);box-shadow:none}50%{background:rgba(255,255,255,.92);border-color:#fff;color:#121a6b;box-shadow:0 0 14px rgba(207,211,236,.75)}}
+@keyframes keyBlink{0%,100%{background:transparent;border-color:var(--t400);box-shadow:none}50%{background:#ff6b35;border-color:#ff6b35;color:#0f0533;box-shadow:0 0 14px rgba(255,107,53,.55)}}
 @media (prefers-reduced-motion:reduce){#hint kbd{animation:none}}
 #hint.off{opacity:0}
 
@@ -187,6 +187,13 @@ figcaption b{display:block;font-family:var(--display);font-weight:500;color:#fff
 #count{font-size:clamp(13px,.95vw,15px)}
 #hint{font-size:clamp(14px,1vw,16px)}
 .partners{flex-wrap:nowrap;width:max-content;max-width:none;gap:0 34px;margin-top:clamp(26px,4vh,40px)}.partners img{height:24px}.partners img.pl-cobham,.partners img.pl-a2z{height:33px}.partners img.pl-viasat{height:30px}
+/* accent tier from the Space42 design system: Pulse for data and live figures, Solar for highlights */
+:root{--solar:#ff6b35;--pulse:#2ac0e6;--sand:#e8dcc4;--cosmos:#0f0533}
+#ladder .tick.on{background:var(--solar)}
+#ladder .cursor{background:var(--solar);box-shadow:0 0 10px rgba(255,107,53,.6)}
+.pill{border-color:var(--solar);color:var(--solar)}
+.lbl.big::before{background:var(--solar);box-shadow:0 0 0 4px rgba(255,107,53,.18)}
+#loading .fill{background:var(--solar)}
 @media (max-width:860px){
   #alt{top:calc(env(safe-area-inset-top,0px) + 20px);transform:none;left:var(--padx);right:auto}
   #ladder{display:none}
@@ -357,9 +364,9 @@ function footprint(polys, fill, stroke){
 const T4POLY=[[-40,8],[-38,28],[-31,44],[-18,57],[0,64],[22,69],[48,69],[72,62],[96,50],[101,44],[94,31],[89,19],[83,6],[74,-12],[58,-29],[38,-41],[12,-47],[-12,-44],[-26,-34],[-35,-18],[-40,-4]];
 const AYGOV=[[-19,28],[-4,44],[26,51],[58,49],[90,41],[118,26],[140,2],[132,-11],[102,-12],[78,-2],[56,-12],[42,-34],[20,-36],[11,-12],[-14,4],[-20,16]];
 const AY3=[[[-17,16],[8,18],[30,14],[41,3],[40,-14],[33,-28],[18,-33],[13,-17],[9,-1],[-10,5]],[[-51,-1],[-36,-5],[-35,-14],[-40,-23],[-48,-28],[-55,-25],[-58,-15],[-55,-6]]];
-const fT4=footprint([T4POLY],'rgba(166,174,221,0.20)','rgba(255,255,255,0.75)');
+const fT4=footprint([T4POLY],'rgba(61,107,255,0.24)','rgba(61,107,255,1)');
 const fAY=footprint([AYGOV],'rgba(116,128,204,0.20)','rgba(207,211,236,0.7)');
-const fAY3=footprint(AY3,'rgba(230,232,244,0.20)','rgba(255,255,255,0.8)');
+const fAY3=footprint(AY3,'rgba(255,107,53,0.22)','rgba(255,107,53,1)');
 
 /* GEO fleet as glowing dots, fixed to the Earth so they spin with it */
 const RG=4.2;
@@ -368,7 +375,7 @@ const SATS={};
 function geoDot(id, lon, ghost, size){
   const pos=ll(0,lon,RG); const mat=new THREE.SpriteMaterial({map:ghost?RING:DOT,transparent:true,opacity:0,depthWrite:false,color:ghost?0xa6aedd:0xffffff});
   const spr=new THREE.Sprite(mat); spr.position.copy(pos); const s=size||0.16; spr.scale.set(s,s,1); earth.add(spr);
-  const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:RING,transparent:true,opacity:0,depthWrite:false})); halo.position.copy(pos); earth.add(halo);
+  const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:RING,color:0xff6b35,transparent:true,opacity:0,depthWrite:false})); halo.position.copy(pos); earth.add(halo);
   SATS[id]={spr,mat,halo,pos,ghost:!!ghost,base:s,phase:Math.random()*3};
 }
 geoDot('ay1',52.5); geoDot('ay2',47.5); geoDot('ay3',-20); geoDot('t2',38.5); geoDot('t3',98.5); geoDot('t4',44.3,false,0.22); geoDot('ay4',61,true,0.14); geoDot('ay5',30,true,0.14);
@@ -400,7 +407,7 @@ const SWATH=(()=>{
   const c=ll(24.3,54.4,1).normalize(); const along=V3(-0.25,1,0.1).normalize(); const N=c.clone().cross(along).normalize(); const e1=c.clone(); const e2=N.clone().cross(e1).normalize();
   const m=new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,uniforms:{uN:{value:N},uE1:{value:e1},uE2:{value:e2},uH:{value:0},uO:{value:0}},
     vertexShader:VHEAD+'varying vec3 vP; void main(){ vP=position; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);'+VTAIL+'}',
-    fragmentShader:FHEAD+'uniform vec3 uN,uE1,uE2; uniform float uH,uO; varying vec3 vP; void main(){'+FLOG+' vec3 p=normalize(vP); float d=abs(dot(p,uN)); float band=smoothstep(.03,.022,d); float s=atan(dot(p,uE2),dot(p,uE1)); float tail=smoothstep(uH-.9,uH,s)*step(s,uH); float head=smoothstep(.018,0.,abs(s-uH)); float stripes=.55+.45*sin(s*900.); float a=band*(.1+tail*.85*stripes+head*2.2)*smoothstep(1.2,.6,abs(s)); gl_FragColor=vec4(vec3(.88,.92,1.)*a*uO,a*uO);}'});
+    fragmentShader:FHEAD+'uniform vec3 uN,uE1,uE2; uniform float uH,uO; varying vec3 vP; void main(){'+FLOG+' vec3 p=normalize(vP); float d=abs(dot(p,uN)); float band=smoothstep(.03,.022,d); float s=atan(dot(p,uE2),dot(p,uE1)); float tail=smoothstep(uH-.9,uH,s)*step(s,uH); float head=smoothstep(.018,0.,abs(s-uH)); float stripes=.55+.45*sin(s*900.); float a=band*(.1+tail*.85*stripes+head*2.2)*smoothstep(1.2,.6,abs(s)); gl_FragColor=vec4(vec3(.165,.753,.902)*a*uO,a*uO);}'});
   earth.add(new THREE.Mesh(new THREE.SphereGeometry(1.0045,160,120),m));
   const dmat=new THREE.SpriteMaterial({map:DOT,transparent:true,opacity:0,depthWrite:false}); const dot=new THREE.Sprite(dmat); dot.scale.set(.1,.1,1); earth.add(dot);
   const lg=new THREE.BufferGeometry(); const la=new Float32Array(12); lg.setAttribute('position',new THREE.BufferAttribute(la,3)); const lm=new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:0,depthWrite:false}); earth.add(new THREE.LineSegments(lg,lm));
@@ -430,7 +437,7 @@ const EQ=(()=>{
         vec3 v=normalize(cameraPosition-w.xyz); float behind=step(0.,dot(normalize(w.xyz),v)+.25);
         vA=vis*(.5+.5*behind);
         gl_PointSize=clamp((7.+uB*3.)*uPR*(2.2/(-mv.z)),1.7*uPR,6.5*uPR)*(1.+vF*1.6);`+VTAIL+'}',
-    fragmentShader:FHEAD+'uniform float uO; varying float vA; varying float vF; void main(){'+FLOG+' vec2 c=gl_PointCoord-.5; float d=length(c); if(d>.5) discard; gl_FragColor=vec4(mix(vec3(.82,.85,1.),vec3(1.),vF),vA*uO*smoothstep(.5,.1,d));}'});
+    fragmentShader:FHEAD+'uniform float uO; varying float vA; varying float vF; void main(){'+FLOG+' vec2 c=gl_PointCoord-.5; float d=length(c); if(d>.5) discard; gl_FragColor=vec4(mix(vec3(.2,.76,.92),vec3(.86,.97,1.),vF),vA*uO*smoothstep(.5,.1,d));}'});
   orbit.add(new THREE.Points(g,m)); return {m,planeLines};
 })();
 
@@ -505,7 +512,7 @@ const cloudMat=new THREE.SpriteMaterial({map:CLOUD,color:0xb4bbe4,transparent:tr
 // extra dense cloud bank above the ground station (for the dive)
 (function(){ for(let i=0;i<70;i++){ const s=new THREE.Sprite(cloudMat); s.position.set(-200+Math.random()*400,290+Math.random()*120,-200+Math.random()*420); const k=120+Math.random()*180; s.scale.set(k*1.6,k*.7,1); world.add(s); } })();
 
-const pulseMatProto=new THREE.PointsMaterial({map:DOT,size:1.2,color:0xffffff,transparent:true,opacity:0,depthWrite:false});
+const pulseMatProto=new THREE.PointsMaterial({map:DOT,size:1.2,color:0x2ac0e6,transparent:true,opacity:0,depthWrite:false});
 function pulseSet(curves, per, size){ const p=new Float32Array(curves.length*per*3); const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.BufferAttribute(p,3)); const m=pulseMatProto.clone(); m.size=size||1.2; const pts=new THREE.Points(g,m); world.add(pts); return {curves,per,p,g,m}; }
 function updatePulses(ps,t,speed){ speed*=.6; const tmp=V3(0,0,0); let k=0; ps.curves.forEach((c,ci)=>{ for(let j=0;j<ps.per;j++){ const u=((t*speed+j/ps.per+ci*.137)%1+1)%1; c.getPointAt(u,tmp); ps.p[k++]=tmp.x; ps.p[k++]=tmp.y; ps.p[k++]=tmp.z; } }); ps.g.attributes.position.needsUpdate=true; }
 const lineMat=(o,c)=>new THREE.LineBasicMaterial({color:c||0xcfd3ec,transparent:true,opacity:o,depthWrite:false});
@@ -567,7 +574,7 @@ const BEAMS=(()=>{
     vertexShader:VHEAD+'attribute float aT; varying float vT; void main(){ vT=aT; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);'+VTAIL+'}',
     fragmentShader:FHEAD+'uniform float uO; varying float vT; void main(){'+FLOG+' gl_FragColor=vec4(.85,.9,1.,pow(1.-vT,1.2)*.7*uO);}'});
   world.add(new THREE.LineSegments(g,m));
-  const pm=new THREE.PointsMaterial({map:DOT,size:1.5,color:0xffffff,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending});
+  const pm=new THREE.PointsMaterial({map:DOT,size:1.5,color:0x2ac0e6,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending});
   const n=FOCI.length*4; const pp=new Float32Array(n*3); const pg=new THREE.BufferGeometry(); pg.setAttribute('position',new THREE.BufferAttribute(pp,3)); world.add(new THREE.Points(pg,pm));
   const rings=FOCI.map(f=>{ const r=new THREE.Sprite(new THREE.SpriteMaterial({map:RING,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending})); r.position.copy(f); world.add(r); return r; });
   return {m,pm,pp,pg,ups,downs,rings,L};
@@ -576,12 +583,17 @@ const BEAMS=(()=>{
 const LANES=[]; [-1,1].forEach(sd=>[-1,0,1].forEach(k=>{ LANES.push({sd,k,c:new THREE.CatmullRomCurve3([V3(sd*4,1.2,4+k*2.2),V3(sd*30,1.4,13+k*4),V3(sd*72,1.6,19+k*6.5),V3(sd*135,1.6,14+k*9)])}); }));
 const streamL=LANES[1].c, streamR=LANES[4].c;
 const streamM=lineMat(0,0xffffff); LANES.forEach(l=>world.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(l.c.getPoints(140)),streamM)));
-const STREAMS=(()=>{ const per=6; const pp=new Float32Array(LANES.length*per*3); const pg=new THREE.BufferGeometry(); pg.setAttribute('position',new THREE.BufferAttribute(pp,3)); const pm=new THREE.PointsMaterial({map:DOT,size:1.4,color:0xffffff,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending}); world.add(new THREE.Points(pg,pm)); return {per,pp,pg,pm}; })();
+const STREAMS=(()=>{ const per=6; const pp=new Float32Array(LANES.length*per*3); const pg=new THREE.BufferGeometry(); pg.setAttribute('position',new THREE.BufferAttribute(pp,3)); const pm=new THREE.PointsMaterial({map:DOT,size:1.4,color:0x2ac0e6,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending}); world.add(new THREE.Points(pg,pm)); return {per,pp,pg,pm}; })();
 // sovereign dome over the complex
-const DOME=(()=>{ const g=new THREE.SphereGeometry(95,48,18,0,TAU,0,Math.PI/2); const wire=new THREE.LineSegments(new THREE.WireframeGeometry(g),lineMat(0)); const sm=new THREE.ShaderMaterial({transparent:true,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,uniforms:{uO:{value:0},uT:{value:0}},
+const DOME=(()=>{ const g=(()=>{ const ico=new THREE.IcosahedronGeometry(95,3); const P=ico.attributes.position; const key=(x,y,z)=>Math.round(x*10)+','+Math.round(y*10)+','+Math.round(z*10); const off={}; const out=[];
+    for(let t=0;t<P.count;t+=3){ let ok=true; for(let k=0;k<3;k++) if(P.getY(t+k)<-.5) ok=false; if(!ok) continue; for(let k=0;k<3;k++){ const x=P.getX(t+k),y=P.getY(t+k),z=P.getZ(t+k); const kk=key(x,y,z); if(!off[kk]) off[kk]=y<1?1:1+(Math.random()-.5)*.05; const f=off[kk]; out.push(x*f,Math.max(0,y*f),z*f); } }
+    const gg=new THREE.BufferGeometry(); gg.setAttribute('position',new THREE.Float32BufferAttribute(out,3)); gg.computeVertexNormals(); return gg; })();
+  const wire=new THREE.LineSegments(new THREE.EdgesGeometry(g,1),lineMat(0)); const dg=new THREE.BufferGeometry(); { const seen={}, pts=[]; const P=g.attributes.position; for(let i=0;i<P.count;i++){ const kk=Math.round(P.getX(i))+','+Math.round(P.getY(i))+','+Math.round(P.getZ(i)); if(seen[kk]) continue; seen[kk]=1; pts.push(P.getX(i),P.getY(i),P.getZ(i)); } dg.setAttribute('position',new THREE.Float32BufferAttribute(pts,3)); }
+  const dots=new THREE.Points(dg,new THREE.PointsMaterial({map:DOT,size:1.7,color:0xe3e9ff,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending}));
+  const sm=new THREE.ShaderMaterial({transparent:true,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,uniforms:{uO:{value:0},uT:{value:0}},
   vertexShader:VHEAD+'varying vec3 vN; varying vec3 vW; varying float vY; void main(){ vY=position.y/95.; vN=normalize(mat3(modelMatrix)*normal); vec4 w=modelMatrix*vec4(position,1.); vW=w.xyz; gl_Position=projectionMatrix*viewMatrix*w;'+VTAIL+'}',
-  fragmentShader:FHEAD+'uniform float uO,uT; varying vec3 vN; varying vec3 vW; varying float vY; void main(){'+FLOG+' vec3 v=normalize(cameraPosition-vW); float f=pow(1.-abs(dot(vN,v)),2.); float band=smoothstep(.96,1.,sin(vY*30.-uT*2.)); gl_FragColor=vec4(vec3(.78,.82,1.),(f*.45+band*.25)*uO);}'});
-  const grp=new THREE.Group(); grp.add(wire); grp.add(new THREE.Mesh(g,sm)); grp.position.set(GS.x,0,GS.z); world.add(grp); return {wire,sm}; })();
+  fragmentShader:FHEAD+'uniform float uO,uT; varying vec3 vN; varying vec3 vW; varying float vY; void main(){'+FLOG+' vec3 v=normalize(cameraPosition-vW); float f=pow(1.-abs(dot(vN,v)),2.); float band=smoothstep(.96,1.,sin(vY*30.-uT*2.)); gl_FragColor=vec4(vec3(.78,.82,1.),(f*.32+band*.18)*uO);}'});
+  const grp=new THREE.Group(); grp.add(wire); grp.add(dots); grp.add(new THREE.Mesh(g,sm)); grp.position.set(GS.x,0,GS.z); world.add(grp); return {wire,sm,dots}; })();
 
 /* ---- data centre: a building you fly into ---- */
 const DCX=SITES.dc.x;
@@ -601,13 +613,13 @@ const DC=(()=>{
   const lg=new THREE.BufferGeometry(); lg.setAttribute('position',new THREE.Float32BufferAttribute(lp,3)); g.add(new THREE.Points(lg,new THREE.PointsMaterial({map:DOT,size:.12,color:0xcfd3ec,transparent:true,opacity:.95,depthWrite:false})));
   [-1.5,1.5].forEach(zz=>{ const l=new THREE.Mesh(new THREE.BoxGeometry(L-6,.12,.25),M.glow); l.position.set(L/2,H-.6,zz); g.add(l); });
   const flowN=420, fp=new Float32Array(flowN*3), fs=new Float32Array(flowN); for(let i=0;i<flowN;i++){ fp[i*3]=4+Math.random()*68; fp[i*3+1]=.5+Math.random()*4; fp[i*3+2]=(Math.random()-.5)*4.4; fs[i]=3+Math.random()*6; }
-  const fg=new THREE.BufferGeometry(); fg.setAttribute('position',new THREE.BufferAttribute(fp,3)); g.add(new THREE.Points(fg,new THREE.PointsMaterial({map:DOT,size:.09,color:0xffffff,transparent:true,opacity:.9,depthWrite:false})));
+  const fg=new THREE.BufferGeometry(); fg.setAttribute('position',new THREE.BufferAttribute(fp,3)); g.add(new THREE.Points(fg,new THREE.PointsMaterial({map:DOT,size:.09,color:0x2ac0e6,transparent:true,opacity:.9,depthWrite:false})));
   // flywheel ring at the end
   const c=V3(70,4.8,0), R=3.6; const pts=[]; for(let i=0;i<=128;i++){ const a=i/128*TAU; pts.push(V3(c.x,c.y+Math.sin(a)*R,c.z+Math.cos(a)*R)); }
   const ringM=lineMat(0,0xffffff); g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),ringM));
   const nm=new THREE.MeshStandardMaterial({color:0xffffff,emissive:0x4651b5,transparent:true,opacity:0}); const nodes=[];
-  for(let i=0;i<5;i++){ const a=Math.PI/2-i/5*TAU; const p=V3(c.x,c.y+Math.sin(a)*R,c.z+Math.cos(a)*R); const s=new THREE.Mesh(new THREE.SphereGeometry(.22,20,14),nm); s.position.copy(p); g.add(s); nodes.push(p.clone().add(g.position)); }
-  const ppg=new THREE.BufferGeometry(); const ppa=new Float32Array(9); ppg.setAttribute('position',new THREE.BufferAttribute(ppa,3)); const ppm=new THREE.PointsMaterial({map:DOT,size:.55,transparent:true,opacity:0,depthWrite:false}); g.add(new THREE.Points(ppg,ppm));
+  for(let i=0;i<5;i++){ const a=Math.PI/2-i/5*TAU; const p=V3(c.x,c.y+Math.sin(a)*R,c.z+Math.cos(a)*R); const s=new THREE.Mesh(new THREE.IcosahedronGeometry(.26,0),nm); s.position.copy(p); g.add(s); nodes.push(p.clone().add(g.position)); }
+  const ppg=new THREE.BufferGeometry(); const ppa=new Float32Array(9); ppg.setAttribute('position',new THREE.BufferAttribute(ppa,3)); const ppm=new THREE.PointsMaterial({map:DOT,size:.55,color:0x2ac0e6,transparent:true,opacity:0,depthWrite:false}); g.add(new THREE.Points(ppg,ppm));
   return {g,fp,fs,fg,flowN,c,R,ringM,nm,nodes,ppg,ppa,ppm};
 })();
 
@@ -629,9 +641,9 @@ const CITY=(()=>{
   lots.forEach(([x,z,h,w],i)=>{ o.position.set(x,h/2,z); o.scale.set(w,h,w); o.updateMatrix(); im.setMatrixAt(i,o.matrix); }); g.add(im);
   // highlighted buildings for the radar-to-response story
   const pick=[5,18,33,47,61,90,120].map(i=>lots[i%lots.length]);
-  const edges=pick.map(([x,z,h,w])=>{ const e=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(w+1.2,h+1.2,w+1.2)),lineMat(0,0xffffff)); e.position.set(x,h/2,z); g.add(e); return {e,x,z,h}; });
+  const edges=pick.map(([x,z,h,w])=>{ const e=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(w+1.2,h+1.2,w+1.2)),lineMat(0,0xff6b35)); e.position.set(x,h/2,z); g.add(e); return {e,x,z,h}; });
   // radar sweep band
-  const band=new THREE.Mesh(new THREE.BoxGeometry(5,140,N*SP),new THREE.MeshBasicMaterial({color:0xcfd3ec,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending})); band.position.y=70; g.add(band);
+  const band=new THREE.Mesh(new THREE.BoxGeometry(5,140,N*SP),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending})); band.position.y=70; g.add(band);
   const bandLine=new THREE.Mesh(new THREE.BoxGeometry(1.2,.6,N*SP),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0})); bandLine.position.y=.6; g.add(bandLine);
   // cars
   const CAR_BODY=(()=>{ const sh=new THREE.Shape(); const L=4.4,H=.75; sh.moveTo(-L/2,.25); sh.lineTo(-L/2,H); sh.lineTo(L/2-.3,H); sh.quadraticCurveTo(L/2,H,L/2,H-.25); sh.lineTo(L/2,.25); sh.lineTo(-L/2,.25); const g=new THREE.ExtrudeGeometry(sh,{depth:1.8,bevelEnabled:true,bevelSize:.12,bevelThickness:.12,bevelSegments:3,curveSegments:6}); g.translate(0,0,-.9); g.rotateY(-Math.PI/2); return g; })();
@@ -640,7 +652,7 @@ const CITY=(()=>{
   function carMesh(auto){ const c=new THREE.Group(); if(auto){ c.add(new THREE.Mesh(MODEL('car15'),SUBJ)); } else { const b=new THREE.Mesh(CAR_BODY,CAR_M); c.add(b); const cab=new THREE.Mesh(CAR_CAB,CAB_M); cab.position.y=.82; c.add(cab); }
     const hl=new THREE.Sprite(new THREE.SpriteMaterial({map:DOT,color:0xffffff,transparent:true,depthWrite:false})); hl.position.set(0,.7,2.4); hl.scale.set(2.6,1.2,1); c.add(hl);
     const tl=new THREE.Sprite(new THREE.SpriteMaterial({map:DOT,color:0x7480cc,transparent:true,depthWrite:false})); tl.position.set(0,.8,-2.35); tl.scale.set(2,.8,1); c.add(tl);
-    if(auto){ const lid=new THREE.Mesh(new THREE.CylinderGeometry(.3,.3,.3,16),M.glow); lid.position.set(0,2.05,0); c.add(lid); const ring=new THREE.Sprite(new THREE.SpriteMaterial({map:RING,transparent:true,opacity:0,depthWrite:false})); ring.position.set(0,2.1,0); c.add(ring); c.userData.ring=ring; }
+    if(auto){ const lid=new THREE.Mesh(new THREE.CylinderGeometry(.3,.3,.3,7),M.glow); lid.position.set(0,2.05,0); c.add(lid); const ring=new THREE.Sprite(new THREE.SpriteMaterial({map:RING,color:0x2ac0e6,transparent:true,opacity:0,depthWrite:false})); ring.position.set(0,2.1,0); c.add(ring); c.userData.ring=ring; }
     g.add(c); return c; }
   const walkers=[]; ['m5','m9','m11','m5','m9','m11','m9','m5','m11','m9','m5','m11','m9','m5'].forEach((k,i)=>{ const m=human(k,1.15); const side=i%2?1:-1; m.position.set(side*6.2,0,-120+i*18); m.rotation.y=side>0?0:Math.PI; g.add(m); walkers.push({m,dir:side>0?1:-1,s:.9+Math.random()*.5}); });
   const cars=[]; for(let i=0;i<46;i++){ const auto=i<6; const horiz=auto?false:i%2===0; const lane=auto?4:Math.floor(Math.random()*N); const dir=Math.random()<.5?1:-1; cars.push({m:carMesh(auto),horiz,c:(lane-(N-1)/2)*SP,dir,u:Math.random()*2-1,s:(auto?.05:.04+Math.random()*.05),auto}); }
@@ -653,6 +665,10 @@ const LAND=(()=>{
   const road=new THREE.Mesh(new THREE.BoxGeometry(900,.3,10),new THREE.MeshStandardMaterial({color:0x0b1046,roughness:.95})); road.position.set(0,.3,30); g.add(road);
   const pyl=[]; for(let i=-6;i<=6;i++){ const x=i*45; const t=new THREE.Group(); t.position.set(x,0,-30); const leg=new THREE.Mesh(new THREE.CylinderGeometry(.6,2.2,26,4),M.tint); leg.position.y=13; t.add(leg); const arm=new THREE.Mesh(new THREE.BoxGeometry(.6,.6,12),M.tint); arm.position.y=24; t.add(arm); g.add(t); pyl.push(x); }
   for(const zz of [-5.5,5.5]){ const pts=[]; for(let i=0;i<pyl.length-1;i++){ for(let k=0;k<=10;k++){ const u=k/10; const x=pyl[i]+(pyl[i+1]-pyl[i])*u; pts.push(V3(x,24-Math.sin(u*Math.PI)*3,-30+zz)); } } g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),lineMat(.6))); }
+  { const pipeM=M.white; const pts=[V3(-160,2.2,-20),V3(-80,2.2,-22),V3(-20,2.2,-30),V3(60,2.2,-26),V3(160,2.2,-34)]; const c=new THREE.CatmullRomCurve3(pts); g.add(new THREE.Mesh(new THREE.TubeGeometry(c,40,.9,7,false),pipeM));
+    for(let k=0;k<=20;k++){ const q=c.getPointAt(k/20); const sp=new THREE.Mesh(new THREE.BoxGeometry(.6,2.2,2.4),M.tint); sp.position.set(q.x,1.1,q.z); g.add(sp); }
+    [[-10,-62,9,8],[12,-66,8,7],[32,-60,6.5,6]].forEach(([x,z,r,h])=>{ const t=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,10,1),M.white); t.position.set(x,h/2,z); g.add(t); const roof=new THREE.Mesh(new THREE.CylinderGeometry(r*.25,r,1.6,10,1),M.white); roof.position.set(x,h+.8,z); g.add(roof); });
+    for(let i=0;i<5;i++) for(let j=0;j<3;j++){ const pn=new THREE.Mesh(new THREE.BoxGeometry(7,.25,3.4),M.tint); pn.position.set(-115+i*8.5,1.6,-50+j*6); pn.rotation.x=-.45; g.add(pn); } }
   const jacks=[]; for(let i=0;i<4;i++){ const j=new THREE.Group(); j.position.set(-90+i*55,0,-75+(i%2)*18); const base=new THREE.Mesh(new THREE.BoxGeometry(4,1,6),M.dark); base.position.y=.5; j.add(base); const post=new THREE.Mesh(new THREE.BoxGeometry(.8,6,.8),M.tint); post.position.y=3.5; j.add(post); const beam=new THREE.Group(); beam.position.y=6.6; const bm=new THREE.Mesh(new THREE.BoxGeometry(.8,.8,11),M.white); beam.add(bm); const head=new THREE.Mesh(new THREE.BoxGeometry(1.2,2.2,1.4),M.white); head.position.set(0,-.6,5.6); beam.add(head); j.add(beam); g.add(j); jacks.push(beam); }
   const backhoe=new THREE.Group(); backhoe.scale.setScalar(2); g.add(backhoe); backhoe.add(new THREE.Mesh(MODEL('backhoe'),M.white));
   const bhWheels=[]; [[1.437,.76,-.25,.76,.7],[-1.263,.76,-.25,.76,.7],[1.137,.52,1.6,.5,.42],[-0.963,.52,1.6,.5,.42]].forEach(([x,y,z,r,w])=>{ const piv=new THREE.Group(); piv.position.set(x,y,z); const wg=new THREE.CylinderGeometry(r,r,w,12,1); wg.rotateZ(Math.PI/2); piv.add(new THREE.Mesh(wg,M.white)); const hg=new THREE.CylinderGeometry(r*.45,r*.45,w*1.06,6,1); hg.rotateZ(Math.PI/2); piv.add(new THREE.Mesh(hg,M.tint)); backhoe.add(piv); bhWheels.push({piv,r}); });
@@ -663,11 +679,16 @@ const LAND=(()=>{
 /* ---- IoT: fields with sensors reporting ---- */
 const IOT=(()=>{
   const g=new THREE.Group(); g.position.copy(SITES.iot); world.add(g);
-  const fm=[new THREE.MeshStandardMaterial({color:0x1e287f,roughness:.9}),new THREE.MeshStandardMaterial({color:0x2d399a,roughness:.9}),new THREE.MeshStandardMaterial({color:0x141c5c,roughness:.9})];
-  for(let i=-4;i<=4;i++) for(let j=-3;j<=3;j++){ const f=new THREE.Mesh(new THREE.BoxGeometry(26,.5,26),fm[(i*7+j*3+40)%3]); f.position.set(i*29,.25,j*29); g.add(f); }
-  const sens=[]; for(let i=0;i<18;i++){ const x=(Math.random()-.5)*230, z=(Math.random()-.5)*180; const post=new THREE.Mesh(new THREE.CylinderGeometry(.18,.18,4,8),M.white); post.position.set(x,2.5,z); g.add(post); const tip=new THREE.Mesh(new THREE.SphereGeometry(.45,12,8),M.glow); tip.position.set(x,4.6,z); g.add(tip); const ring=new THREE.Sprite(new THREE.SpriteMaterial({map:RING,transparent:true,opacity:0,depthWrite:false})); ring.position.set(x,4.6,z); g.add(ring); sens.push({ring,ph:Math.random()}); }
+  const fm=[0x121a63,0x172070,0x0e1553].map(c=>new THREE.MeshStandardMaterial({color:c,roughness:.95}));
+  for(let i=-4;i<=4;i++) for(let j=-3;j<=3;j++){ const f=new THREE.Mesh(new THREE.BoxGeometry(26,.3,26),fm[(i*7+j*3+40)%3]); f.position.set(i*29,.25,j*29); g.add(f); }
+  const sens=[]; for(let i=0;i<18;i++){ const x=(Math.random()-.5)*230, z=(Math.random()-.5)*180; const post=new THREE.Mesh(new THREE.CylinderGeometry(.18,.18,4,8),M.white); post.position.set(x,2.5,z); g.add(post); const tip=new THREE.Mesh(new THREE.IcosahedronGeometry(.5,0),M.glow); tip.position.set(x,4.6,z); g.add(tip); const ring=new THREE.Sprite(new THREE.SpriteMaterial({map:RING,color:0x2ac0e6,transparent:true,opacity:0,depthWrite:false})); ring.position.set(x,4.6,z); g.add(ring); sens.push({ring,ph:Math.random()}); }
   const up=[]; sens.slice(0,8).forEach(s=>{ const p=s.ring.position.clone().add(g.position); up.push(new THREE.LineCurve3(p, p.clone().add(V3(-60,320,40)))); });
-  return {g,sens,pulses:pulseSet(up,2,1.4)};
+    const towers=[]; [[-80,-75,58],[15,-95,66],[100,-70,52]].forEach(([x,z,h])=>{ const t=new THREE.Group(); t.position.set(x,0,z); g.add(t);
+    const mast=new THREE.Mesh(new THREE.CylinderGeometry(.5,1.8,h,4,4),M.white); mast.position.y=h/2; t.add(mast);
+    for(let k=0;k<3;k++){ const a=k/3*TAU; const pnl=new THREE.Mesh(new THREE.BoxGeometry(.9,3.6,.3),M.white); pnl.position.set(Math.cos(a)*1.4,h-2.2,Math.sin(a)*1.4); pnl.rotation.y=-a; t.add(pnl); }
+    const mw=new THREE.Mesh(new THREE.CylinderGeometry(1.1,1.1,.4,10),M.tint); mw.rotation.x=Math.PI/2; mw.position.set(0,h-6,1.4); t.add(mw);
+    const lite=new THREE.Sprite(new THREE.SpriteMaterial({map:DOT,transparent:true,depthWrite:false})); lite.position.y=h+1; lite.scale.set(2.4,2.4,1); t.add(lite); towers.push(lite); });
+  return {g,sens,towers,pulses:pulseSet(up,2,1.4)};
 })();
 
 /* ---- government: secure perimeter ---- */
@@ -677,12 +698,21 @@ const GOV=(()=>{
   for(let i=0;i<64;i+=2){ const a=i/64*TAU; const p=new THREE.Mesh(new THREE.BoxGeometry(.3,3.2,.3),M.tint); p.position.set(Math.cos(a)*R,1.6,Math.sin(a)*R); g.add(p); }
   for(let i=0;i<4;i++){ const a=i/4*TAU+.4; const t=new THREE.Group(); t.position.set(Math.cos(a)*R*.98,0,Math.sin(a)*R*.98); const leg=new THREE.Mesh(new THREE.CylinderGeometry(.6,1,14,6),M.tint); leg.position.y=7; t.add(leg); const cab=new THREE.Mesh(new THREE.BoxGeometry(4,2.6,4),M.white); cab.position.y=15; t.add(cab); g.add(t); }
   const bld=new THREE.Mesh(new THREE.BoxGeometry(28,7,16),M.mid); bld.position.set(-8,3.5,6); g.add(bld);
-  const rd=new THREE.Mesh(new THREE.SphereGeometry(6,32,16,0,TAU,0,Math.PI*.6),M.white); rd.position.set(18,4,-12); g.add(rd);
-  const rdb=new THREE.Mesh(new THREE.CylinderGeometry(4.6,5,4,24),M.tint); rdb.position.set(18,2,-12); g.add(rdb);
-  const tank=new THREE.Mesh(MODEL('tank'),M.white); tank.scale.setScalar(1.5); tank.position.set(0,0,30); g.add(tank);
-  const drone=new THREE.Group(); const dbody=new THREE.Mesh(new THREE.BoxGeometry(1.2,.4,1.2),M.white); drone.add(dbody); [[1,1],[1,-1],[-1,1],[-1,-1]].forEach(([a,b])=>{ const arm=new THREE.Mesh(new THREE.CylinderGeometry(.9,.9,.08,16),M.tint); arm.position.set(a*1.1,.2,b*1.1); drone.add(arm); }); g.add(drone);
+  const rd=new THREE.Mesh(polyJitter(new THREE.IcosahedronGeometry(6,1),.4),M.white); rd.position.set(18,5.2,-12); g.add(rd);
+  const rdb=new THREE.Mesh(new THREE.CylinderGeometry(4.6,5,4,7),M.tint); rdb.position.set(18,2,-12); g.add(rdb);
+  const tank=new THREE.Group(); tank.position.set(0,0,30); g.add(tank); const tbody=new THREE.Mesh(MODEL('tank'),M.white); tbody.scale.setScalar(1.5); tank.add(tbody);
+  const TR=(()=>{ const n=46, arr=new Float32Array(n*2*3); const gg=new THREE.BufferGeometry(); gg.setAttribute('position',new THREE.BufferAttribute(arr,3)); const pm=new THREE.PointsMaterial({map:DOT,size:.55,color:0xe3e9ff,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}); tank.add(new THREE.Points(gg,pm));
+    const L=13.2, H=2.2, r=H/2; const per=2*(L-2*r)+2*Math.PI*r; const at=d=>{ d=((d%per)+per)%per; const s1=L-2*r; if(d<s1) return [-(L/2-r)+d, r*2]; d-=s1; if(d<Math.PI*r){ const a=d/r; return [L/2-r+Math.sin(a)*r, r+Math.cos(a)*r]; } d-=Math.PI*r; if(d<s1) return [L/2-r-d, 0]; d-=s1; const a=d/r; return [-(L/2-r)-Math.sin(a)*r, r-Math.cos(a)*r]; };
+    return {n,arr,gg,per,at,xs:[-4.6,4.6]}; })();
+  const FJ=(()=>{ const jets=[], trails=[]; const off=[[0,0,0],[-16,-3,-18],[16,-3,-18]];
+    off.forEach(o=>{ const j=new THREE.Group(); j.add(new THREE.Mesh(MODEL('jet'),M.white)); const gl=new THREE.Sprite(new THREE.SpriteMaterial({map:DOT,color:0xcfd3ec,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending})); gl.position.set(0,2,-7.4); gl.scale.set(3,3,1); j.add(gl); j.visible=false; world.add(j); jets.push({j,o});
+      const n=36, arr=new Float32Array(n*3), al=new Float32Array(n); for(let k=0;k<n;k++) al[k]=1-k/(n-1); const tg=new THREE.BufferGeometry(); tg.setAttribute('position',new THREE.BufferAttribute(arr,3)); tg.setAttribute('aT',new THREE.BufferAttribute(al,1));
+      const tm=new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,uniforms:{uO:{value:0}},vertexShader:VHEAD+'attribute float aT; varying float vT; void main(){ vT=aT; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);'+VTAIL+'}',fragmentShader:FHEAD+'uniform float uO; varying float vT; void main(){'+FLOG+' gl_FragColor=vec4(.86,.9,1.,vT*vT*.75*uO);}'});
+      const tl=new THREE.Line(tg,tm); tl.frustumCulled=false; world.add(tl); trails.push({arr,tg,tm,hist:[]}); });
+    const lm=lineMat(0); const ln=new THREE.Line(new THREE.BufferGeometry().setFromPoints([V3(0,0,0),V3(0,1,0)]),lm); world.add(ln); return {jets,trails,lm,ln}; })();
+  const drone=new THREE.Group(); { const dm=new THREE.Mesh(MODEL('drone'),M.white); dm.scale.setScalar(1.4); drone.add(dm); } g.add(drone);
   const lm=lineMat(0); const link=beamFromSky(V3(18,10,-12).add(g.position),330,lm);
-  return {g,drone,tank,link,lm,pulses:pulseSet([link],4,1.6)};
+  return {g,drone,tank,TR,FJ,link,lm,pulses:pulseSet([link],4,1.6)};
 })();
 
 /* ---- people: a lone camper on an isolated mountain ---- */
@@ -714,7 +744,7 @@ const PEOPLE=(()=>{
     const gx=w/2, gy=170; c.strokeStyle='rgba(166,174,221,.5)'; c.lineWidth=2; [40,62,84].forEach(r=>{ c.beginPath(); c.arc(gx,gy,r,Math.PI*1.15,Math.PI*1.85); c.stroke(); });
     sat(c,gx,gy-4,30); bars(c,gx-28,gy+92,10,1);
     c.textAlign='center'; c.fillStyle='#fff'; c.font='500 23px AX, sans-serif'; c.fillText('Connected',gx,318); c.fillStyle='#cfd3ec'; c.font='300 17px AR, sans-serif'; c.fillText('via satellite',gx,344);
-    c.fillStyle='#1e287f'; c.fillRect(30,380,196,38); c.fillRect(30,428,196,38); c.fillStyle='#fff'; c.font='300 16px AR, sans-serif'; c.fillText('Calls and messages',gx,405); c.fillText('Mobile internet',gx,453); });
+    c.fillStyle='#1e287f'; c.fillRect(30,380,196,38); c.fillRect(30,428,196,38); c.fillStyle='#fff'; c.font='300 16px AR, sans-serif'; c.fillText('Voice calls',gx,405); c.fillText('Text messages',gx,453); });
   { const sp=new THREE.Mesh(new THREE.PlaneGeometry(.45,.92),new THREE.MeshBasicMaterial({map:scr})); sp.position.set(0,0,.04); ph.add(sp); }
   ph.scale.setScalar(4.2); ph.position.set(13,6,9); g.add(ph);
   const lm=lineMat(0); const link=beamFromSky(V3(13,8.1,9).add(g.position),380,lm);
@@ -743,7 +773,9 @@ const AIR=(()=>{
   g.add(p);
   const tp=[]; const trailG=new THREE.BufferGeometry(); const tArr=new Float32Array(80*3); trailG.setAttribute('position',new THREE.BufferAttribute(tArr,3)); const trail=new THREE.Line(trailG,lineMat(.5)); g.add(trail);
   const link=new THREE.LineCurve3(V3(-80,400,0).add(g.position),V3(0,2,0).add(g.position)); const lm=lineMat(0); const lineObj=new THREE.Line(new THREE.BufferGeometry().setFromPoints([link.v1,link.v2]),lm); world.add(lineObj);
-  return {g,p,trailG,tArr,link,lm,lineObj,pulses:pulseSet([link],4,1.4)};
+  const heli=new THREE.Group(); g.add(heli); { const bd=new THREE.Mesh(MODEL('heliBody'),M.white); bd.scale.setScalar(1.25); heli.add(bd); const rotor=new THREE.Group(); rotor.position.set(-.16*1.25,4.48*1.25,2.7*1.25); heli.add(rotor); const rm=new THREE.Mesh(MODEL('heliRotor'),M.white); rm.scale.setScalar(1.25); rm.position.set(.16*1.25,-4.48*1.25,-2.7*1.25); rotor.add(rm); heli.userData.rotor=rotor; }
+  const uav=new THREE.Group(); g.add(uav); { const dm=new THREE.Mesh(MODEL('drone'),M.white); dm.scale.setScalar(1.8); uav.add(dm); }
+  return {g,p,trailG,tArr,link,lm,lineObj,heli,uav,pulses:pulseSet([link],4,1.4)};
 })();
 
 /* =========================================================
@@ -819,7 +851,7 @@ function countUp(root){
   const num=(it,v)=>{ let s=v.toFixed(it.dec); if(it.comma) s=Number(s).toLocaleString('en-US',{minimumFractionDigits:it.dec,maximumFractionDigits:it.dec}); return s; };
   items.forEach(it=>{ const st=it.b.parentElement; st.style.minWidth=st.getBoundingClientRect().width+'px'; it.b.style.height=it.b.getBoundingClientRect().height+'px';
     // the number sits in a box locked to its final width, so the unit after it never moves
-    it.b.textContent=''; it.b.append(document.createTextNode(it.pre)); const box=document.createElement('span'); box.style.cssText='display:inline-block;white-space:nowrap;font:inherit;color:inherit;margin:0'; box.textContent=num(it,it.val); it.b.append(box); it.b.append(document.createTextNode(it.suf));
+    it.b.textContent=''; it.b.append(document.createTextNode(it.pre)); const box=document.createElement('span'); box.style.cssText='display:inline-block;white-space:nowrap;font:inherit;color:inherit;margin:0;max-width:none;letter-spacing:inherit'; box.textContent=num(it,it.val); it.b.append(box); it.b.append(document.createTextNode(it.suf));
     box.style.width=box.getBoundingClientRect().width+'px'; it.box=box; it.last=num(it,it.from); box.textContent=it.last; });
   const t0=performance.now(), D=850; let lastW=0;
   const step=now=>{ if(run!==countRun) return; let done=true;
@@ -835,7 +867,7 @@ function countAlt(txt){
   if(!nums.length||reduce){ el.textContent=txt; return; }
   const t0=performance.now(), D=900;
   // build the final readout once; each number lives in a box locked to its final width, so km and the dash never move
-  el.textContent=''; const boxes=[]; parts.forEach((p,i)=>{ const n=nums.find(x=>x.i===i); if(!n){ if(p) el.append(document.createTextNode(p)); return; } const bx=document.createElement('span'); bx.style.cssText='display:inline-block;white-space:nowrap;text-align:right'; bx.textContent=p; el.append(bx); boxes.push(bx); });
+  el.textContent=''; const boxes=[]; parts.forEach((p,i)=>{ const n=nums.find(x=>x.i===i); if(!n){ if(p) el.append(document.createTextNode(p)); return; } const bx=document.createElement('span'); bx.style.cssText='display:inline-block;white-space:nowrap;text-align:right;font:inherit;color:inherit;margin:0;max-width:none;letter-spacing:inherit'; bx.textContent=p; el.append(bx); boxes.push(bx); });
   boxes.forEach(bx=>{ bx.style.width=bx.getBoundingClientRect().width+'px'; });
   const fmtA=(n,v)=>n.comma||v>=1000?v.toLocaleString('en-US'):String(v); const lastV=nums.map((n,k)=>fmtA(n,from[k])); boxes.forEach((bx,k)=>{ bx.textContent=lastV[k]; }); let lastW=0;
   const step=now=>{ if(run!==altRun) return; const u=Math.min(1,Math.max(0,(now-t0)/D));
@@ -859,28 +891,28 @@ const O=(r,lat,lon,look,fov,shift)=>({scene:'orbit',pos:ll(lat,lon,r),look:look|
 const W=(site,p,l,fov,shift)=>{ const s=SITES[site]; return {scene:'world',pos:V3(...p).add(s),look:V3(...l).add(s),fov:fov||50,shift:shift||0}; };
 
 const STOPS=[
- {act:0,rung:0,spin:1,pose:O(15,14,32,null,30,-.12),panel:`<img class="plogo big" src="${IMG('logo')}" alt="Space42"><h1>Enlighten the Earth from space</h1><p>Space technology and intelligence for a more connected, informed and resilient world. Space42 brings satellites, data platforms, AI and secure connectivity together as one seamless system.</p><div class="stats four">${stat('150+','countries covered by our satellites')}${stat('80%+','of the world’s population within reach')}${stat('USD 6.6Bn','contracted future revenue to 2043')}${stat('~1 PB','of national geospatial data')}</div>`},
+ {act:0,rung:0,spin:1,pose:O(15,14,32,null,30,-.12),panel:`<img class="plogo big" src="${IMG('logo')}" alt="Space42"><h1>Enlighten the Earth from space</h1><p>Space technology and intelligence for a more connected, informed and resilient world. Space42 brings satellites, data platforms, AI and secure connectivity together as one seamless system.</p><div class="stats four">${stat('120+','countries covered by our satellites')}${stat('80%+','of the world’s population within reach')}${stat('USD 6.6Bn','contracted future revenue to 2043')}${stat('~1 PB','of national geospatial data')}</div>`},
  {act:0,rung:1,spin:1,pose:O(15.5,30,32,null,38,-.08),layers:{geo:1,sats:1},labels:['grpME','ay3','t3'],hero:'alyah-2',panel:`<h1>Our geostationary fleet</h1><p>A multi-band fleet 36,000 km above the equator, delivering government and commercial services. Each satellite watches over a third of the planet.</p><div class="stats">${stat('6','satellites in orbit')}${stat('2','in the pipeline with Airbus')}</div>${tags(['Al Yah 1, 2 and 3','Thuraya-2, -3 and -4','Al Yah 4 and 5 expected'])}`},
- {act:0,rung:1,pose:{scene:'orbit',pos:ll(14,12,11.5),look:t4.clone().multiplyScalar(.5),fov:36,shift:-.15},layers:{geo:.6,sats:1,fT4:1,bT4:1,hero:'t4'},labels:['t4'],hero:'thuraya-4',panel:`<img class="plogo" src="${IMG('thuraya')}" alt="Space42 Thuraya"><h1>Thuraya-4</h1><p>Sovereign, secure and resilient mobile satellite services. Software-defined, with higher throughput across the Middle East, Africa, Central Asia and Europe.</p><div class="stats">${stat('2025','launched')}${stat('1 Mbps','broadband, up to')}${stat('1 M+','terminals sold')}</div>${tags(['Thuraya One smartphone','T-TAC tactical satcom','IoT system'])}`},
+ {act:0,rung:1,pose:{scene:'orbit',pos:ll(14,12,11.5),look:t4.clone().multiplyScalar(.5),fov:36,shift:-.15},layers:{geo:.6,sats:1,fT4:1,bT4:1,hero:'t4'},labels:['t4'],hero:'thuraya-4',panel:`<img class="plogo" src="${IMG('thuraya')}" alt="Space42 Thuraya"><h1>Thuraya-4</h1><p>Sovereign, secure and resilient mobile satellite services. Software-defined, covering the Middle East, Africa, Central Asia and Europe.</p><div class="stats">${stat('2025','launched')}${stat('1 Mbps','broadband, up to')}${stat('1 M+','terminals sold')}</div>${tags(['Thuraya One smartphone','T-TAC tactical satcom','IoT system'])}`},
  {act:0,rung:1,pose:O(9.4,6,8,V3(0,0,0),42,-.08),layers:{geo:.6,sats:1,fAY:1,fAY3:1,bAY:1,bAY3:1,hero:'ay'},labels:['grpAY','ay3','grpAY45'],hero:'alyah-3',panel:`<h1>Al Yah</h1><p>Sovereign satellites providing secure, high-capacity connectivity for the UAE Government, alongside YahClick broadband across Africa and the Middle East.</p><div class="stats four">${stat('USD 5.1Bn','UAE Government capacity and services contract')}${stat('#1','satellite broadband provider in Africa')}${stat('2027','Al Yah 4 expected')}${stat('2028+','Al Yah 5 expected')}</div><div class="note">Coverage shown is indicative</div>`},
- {act:0,rung:2,spin:1,pose:O(5.3,26,60,V3(0,0,0),42,-.12),layers:{leo:1,geo:.12,sats:.2},labels:['fs1','fs3'],hero:'foresight',panel:`<h1>Foresight</h1><p>A sovereign SAR constellation delivering high-resolution, all-weather imagery. Foresight-1, launched in August 2024, was the UAE’s first SAR satellite.</p><div class="stats">${stat('Daily','revisit time')}${stat('99%','operational uptime')}${stat('Top 20','nations operating SAR')}</div>${tags(['Built with ICEYE','Local manufacturing and full technology transfer','~150 kg satellites, 1,200 MHz payload bandwidth'])}`},
- {act:0,rung:2,pose:O(1.9,16,64,ll(24.4,55.5,1),36,-.1),layers:{leo:.35,uae:.3,hiUAE:.4,swath:1,clouds:.45},panel:`<h1>Any weather, day or night</h1><p>Radar paints the ground strip by strip as the satellite passes, through cloud, dust and darkness, with resolution matching industry leaders.</p>`},
+ {act:0,rung:2,spin:1,pose:O(5.3,26,60,V3(0,0,0),42,-.12),layers:{leo:1,geo:.12,sats:.2},labels:['fs1','fs3'],hero:'foresight',panel:`<h1>Foresight</h1><p>A sovereign SAR constellation delivering high-resolution, all-weather imagery. Foresight-1, launched in August 2024, was the UAE’s first SAR satellite.</p><div class="stats">${stat('25 cm','resolution')}${stat('Daily','revisit time')}${stat('99%','operational uptime')}</div>${tags(['Built with ICEYE','Local manufacturing and full technology transfer','UAE among the top 20 nations operating SAR'])}`},
+ {act:0,rung:2,pose:O(1.9,16,64,ll(24.4,55.5,1),36,-.1),layers:{leo:.35,uae:.3,hiUAE:.4,swath:1,clouds:.45},panel:`<h1>Any weather, day or night</h1><p>Radar paints the ground strip by strip as the satellite passes, through cloud, dust and darkness, at up to 25 cm resolution.</p>`},
  {act:0,rung:2,spin:1,pose:O(5.0,24,28,V3(0,0,0),42,-.08),layers:{eq:1,eqLines:1,reveal:1},panel:`<img class="plogo" src="${IMG('equatys')}" alt="Equatys"><h1>The next layer</h1><p>Equatys, co-founded with Viasat, is an open, interoperable non-terrestrial network that connects standard smartphones and IoT devices to satellites, with no hardware modification.</p><div class="stats"><div class="stat"><b id="eqCount">0</b><span>satellites</span></div>${stat('60','orbital planes')}${stat('3','altitude layers')}</div><div class="pill">Planned</div>`},
  {act:0,rung:2,spin:1,pose:O(4.4,8,40,V3(0,0,0),42,-.08),layers:{eq:.55,eqLines:.35,reveal:1,arcs:1},panel:`<img class="plogo" src="${IMG('equatys')}" alt="Equatys"><h1>One network, shared by many</h1><p>A tower company in space: mobile operators share the satellites and ground network over existing MSS spectrum in L and S band, and keep their own customers.</p><div class="stats four">${stat('100MHz+','combined MSS spectrum')}${stat('400+','mobile operator relationships')}${stat('USD 1bn','combined equity committed')}${stat('2,800','satellites, 60 orbital planes')}</div>`},
- {act:0,rung:2,spin:1,pose:O(3.6,18,20,V3(0,0,0),42,-.08),layers:{eq:1,eqLines:.5,reveal:1,dense:1},panel:`<img class="plogo" src="${IMG('equatys')}" alt="Equatys"><h1>Built to grow</h1><p>Built on the 3GPP 5G standard and LEO innovation, the network grows with demand, without a redesign. Partnerships and technology through 2027, operations from 2028.</p><div class="stats">${stat('USD 13.4Bn','D2D market opportunity by 2030')}${stat('2028','operations begin')}</div>`},
- {act:1,rung:3,pose:{scene:'orbit',pos:hapsCam,look:hapsLook,fov:44,shift:-.06,up:HAPS.n.clone()},layers:{haps:1,uae:1,clouds:.9},labels:['haps'],panel:`<img class="plogo" src="${IMG('mira')}" alt="Mira Aerospace"><h1>ApusNeo18</h1><p>Solar-powered platforms in the stratosphere, bridging unmanned aircraft and satellites without launch operations.</p><div class="stats">${stat('18 m','wingspan')}${stat('18 km','maximum altitude')}${stat('6 kg','maximum payload')}</div>${tags(['ApusNeo14 demonstrator','ApusNeo30: 30 m, commercial EO and connectivity','Telecoms and Earth observation payloads'])}`},
- {act:2,rung:4,pose:W('gs',[34,15,58],[2,4,-6],50,-.1),layers:{sky:1},labels:['gsLabel'],panel:`<h1>Everything comes home</h1><p>Signals from every orbit meet in Space42’s ground segment, where every data stream and connection is received.</p>`},
+ {act:0,rung:2,spin:1,pose:O(3.6,18,20,V3(0,0,0),42,-.08),layers:{eq:1,eqLines:.5,reveal:1,dense:1},panel:`<img class="plogo" src="${IMG('equatys')}" alt="Equatys"><h1>Built to grow</h1><p>Built on the 3GPP 5G standard and LEO innovation, the network grows with demand, without a redesign. Partnerships and technology through 2027, operations from 2028.</p><div class="stats">${stat('USD 13.4Bn','D2D market by 2030, MSS spectrum only')}${stat('2028','operations begin')}</div>`},
+ {act:1,rung:3,pose:{scene:'orbit',pos:hapsCam,look:hapsLook,fov:44,shift:-.06,up:HAPS.n.clone()},layers:{haps:1,uae:1,clouds:.9},labels:['haps'],panel:`<img class="plogo" src="${IMG('mira')}" alt="Mira Aerospace"><h1>ApusNeo18</h1><p>Solar-powered platforms in the stratosphere, bridging unmanned aircraft and satellites without launch operations.</p><div class="stats">${stat('18 m','wingspan')}${stat('18 km','maximum altitude')}${stat('6 kg','maximum payload')}</div>${tags(['Telecoms and Earth observation payloads','ApusNeo30 in the pipeline: 30 m wingspan, commercial EO and connectivity'])}`},
+ {act:2,rung:4,pose:W('gs',[34,15,58],[2,4,-6],50,-.1),layers:{sky:1},labels:['gsLabel','noc','foc'],panel:`<h1>Everything comes home</h1><p>Signals from every orbit meet in Space42’s ground segment, where every data stream and connection is received.</p>`},
  {act:2,rung:4,pose:W('gs',[-150,120,210],[0,10,0],46,-.1),layers:{dome:1,streams:.4,sky:.3},panel:`<h1>Sovereign by design</h1><p>Critical capability, built and operated at home.</p><ul class="facts"><li><strong>Foresight</strong>Local manufacturing and full technology transfer with ICEYE</li><li><strong>UAE Space Data Center</strong>Powered by Space42, designed for resilience, scale and speed</li><li><strong>GIX</strong>Sovereign geospatial intelligence for mission-critical environments</li></ul>`},
  {act:3,rung:5,pose:W('dc',[6,4.2,0],[60,3.2,0],54,-.08),layers:{},panel:`<h1>Where data becomes intelligence</h1><p>Space42 powers the UAE Space Data Center, combining exclusive national geospatial data with new data from our own constellations.</p><div class="stats">${stat('~1 PB','national geospatial data')}${stat('+1 PB','new data expected each year')}</div>`},
- {act:3,rung:5,pose:W('dc',[57,3.6,0],[70,4.8,0],52,-.12),layers:{fly:1},labels:['fly0','fly1','fly2','fly3','fly4'],panel:`<img class="plogo" src="${IMG('giq')}" alt="Space42 GIQ"><h1>Raw data in, decisions out</h1><p>GIQ, our AI-powered geospatial intelligence platform, covers the full lifecycle: multi-source integration, AI analytics, automated workflows and sovereign deployment.</p><div class="stats">${stat('Billions','of objects in training data')}${stat('4','industry-specific applications')}</div>${tags(['Optical, SAR and aerial imagery','Cloud and on-premise','Esri and Azure Marketplace'])}`},
- {act:3,rung:4,pose:W('city',[-150,120,190],[10,0,-10],46,-.08),layers:{scan:1},labels:['impact'],panel:`<h1>Cities that learn</h1><p>Satellite, aerial and ground survey data build a continuously updated view of the city. GIQ shows what is happening; the digital twin models what could happen next.</p>${tags(['3D city models','Digital twins','HD navigation maps','Map Africa'])}`},
+ {act:3,rung:5,pose:W('dc',[57,3.6,0],[70,4.8,0],52,-.12),layers:{fly:1},labels:['fly0','fly1','fly2','fly3','fly4'],panel:`<img class="plogo" src="${IMG('giq')}" alt="Space42 GIQ"><h1>Raw data in, decisions out</h1><p>GIQ, our AI-powered geospatial intelligence platform, covers the full lifecycle: multi-source integration, AI analytics, automated workflows and sovereign deployment.</p><div class="stats">${stat('50+','AI models')}${stat('Billions','of objects in training data')}</div>${tags(['Optical, SAR and aerial imagery','Cloud and on-premise','Esri and Azure Marketplace'])}`},
+ {act:3,rung:4,pose:W('city',[-150,120,190],[10,0,-10],46,-.08),layers:{scan:1},labels:['impact'],panel:`<h1>Cities that learn</h1><p>Satellite, aerial and ground survey data build a continuously updated view of the city. GIQ shows what is happening; the digital twin models what could happen next.</p>${tags(['Smarter Cities solution','Traffic management','Building management','3D city models'])}`},
  {act:3,rung:4,pose:W('city',[2,13,66],[0,2,-30],52,-.06),layers:{auto:1},labels:['autoCar'],panel:`<h1>Autonomous mobility</h1><p>Through NEXO, our joint venture with Autonomous A2Z, Space42 brings AI, geospatial and connectivity capabilities together to scale autonomous mobility in the UAE.</p><div class="stats">${stat('900k+ km','driven autonomously')}${stat('35+','vehicles')}${stat('4','mobility platforms')}</div>`},
- {act:4,rung:6,pose:W('land',[-70,14,40],[-30,4,-60],48,-.08),layers:{},panel:`<h1>Energy and enterprise</h1><p>Persistent awareness and resilient communications across offshore, remote and cross-border operations.</p>${tags(['Pipeline and infrastructure monitoring','Offshore and remote connectivity','Supply chain visibility','Environmental and land-use monitoring'])}`},
+ {act:4,rung:6,pose:W('land',[-70,14,40],[-30,4,-60],48,-.08),layers:{},panel:`<h1>Energy and enterprise</h1><p>Persistent awareness and resilient communications for remote and cross-border sites on land.</p>${tags(['Pipeline and infrastructure monitoring','Remote site connectivity','Supply chain visibility','Environmental and land-use monitoring'])}`},
  {act:4,rung:6,pose:W('iot',[-40,46,150],[10,4,0],48,-.08),layers:{iot:1},panel:`<h1>Telecoms and IoT</h1><p>Operators extend their networks beyond terrestrial reach, with a trusted infrastructure partner.</p>${tags(['Satellite backhaul','Direct-to-device','Large-scale IoT networks','Resilient critical communications'])}`},
  {act:4,rung:6,pose:W('gov',[-90,60,140],[0,6,0],46,-.08),layers:{gov:1},labels:['govLabel'],panel:`<h1>Government</h1><p>Trusted, sovereign access to data, connectivity and infrastructure, with critical communications and insight under national control.</p>${tags(['Border and maritime awareness','Disaster response','National infrastructure protection','Secure government communications','Urban planning'])}`},
- {act:4,rung:6,pose:W('people',[18,PEOPLE.hc+7,30],[-6,PEOPLE.hc+9,-40],46,-.12),layers:{people:1},panel:`<h1>Connected, anywhere</h1><p>A remote mountain, hours from the nearest town. No cell tower, yet full bars: calls, messages and mobile internet, straight from space.</p><div class="stats">${stat('2/3','of the world’s population in Thuraya coverage')}${stat('178','countries with roaming agreements')}</div>`},
+ {act:4,rung:6,pose:W('people',[18,PEOPLE.hc+7,30],[-6,PEOPLE.hc+9,-40],46,-.12),layers:{people:1},panel:`<h1>Connected, anywhere</h1><p>A remote mountain, hours from the nearest town. No cell tower, yet full bars: voice calls and text messages, straight from space.</p><div class="stats">${stat('2/3','of the world’s population in Thuraya coverage')}${stat('178','countries with roaming agreements')}</div>`},
  {act:4,rung:7,pose:W('sea',[-90,32,110],[0,6,10],46,-.08),layers:{sea:1},panel:`<h1>Maritime</h1><p>Continuous communications, real-time insight and operational awareness across the world’s oceans.</p>${tags(['Vessel and offshore connectivity','Maritime domain awareness','Ports and shipping routes','Safety and incident response'])}`},
- {act:4,rung:8,pose:W('air',[-60,8,55],[14,2,-4],46,-.1),layers:{air:1},panel:`<h1>Aero</h1><p>Airborne systems with seamless coverage over Thuraya-4, from UAVs to fixed and rotary wing aircraft.</p>${tags(['UAV, up to 1 Mbps beyond line of sight','Fixed wing, up to 70,000 ft','Rotary wing','VoLTE and passenger connectivity'])}`},
+ {act:4,rung:8,pose:W('air',[-60,8,55],[14,2,-4],46,-.1),layers:{air:1},panel:`<h1>Aero</h1><p>Airborne systems with seamless coverage over Thuraya-4, from UAVs to fixed and rotary wing aircraft.</p>${tags(['UAVs, up to 1 Mbps beyond line of sight','Fixed wing, up to 70,000 ft','Helicopters and rotary wing','VoLTE and passenger connectivity'])}`},
  {act:5,rung:0,spin:1,pose:O(10,16,58,V3(0,0,0),36,-.1),layers:{geo:.5,sats:.6,eq:.45,leo:.6,uae:.6},panel:`<h1>Together with our partners</h1><p>From satellites and radar to cloud, AI and autonomous mobility, we work with global technology leaders to co-create space solutions with real-world impact.</p><div class="partners">${['iceye','airbus','viasat','microsoft','cobham','a2z'].map(k=>`<img src="${IMG('p_'+k)}" alt="${({iceye:'ICEYE',airbus:'Airbus',viasat:'Viasat',microsoft:'Microsoft',cobham:'Cobham Satcom',a2z:'Autonomous A2Z'})[k]}" class="pl-${k}">`).join('')}</div>`},
  {act:5,rung:0,spin:1,pose:O(30,12,40,V3(0,0,0),30,0),center:true,panel:`<img class="plogo big" src="${IMG('logo')}" alt="Space42"><h1>Enlighten the Earth from space</h1><p>Space technology and intelligence for a more connected, informed and resilient world</p><p class="note">space42.ai</p>`}
 ];
@@ -911,7 +943,9 @@ const LABELS={
   fs1:{t:'Foresight-1',s:'UAE’s first SAR satellite, 2024',p:()=>FORESIGHT[0].pos},
   fs3:{t:'Foresight-3',s:'Integrated and tested in Abu Dhabi',p:()=>FORESIGHT[2].pos},
   haps:{t:'ApusNeo18',s:'Mira Aerospace',p:()=>HAPS.holder.getWorldPosition(V3(0,0,0))},
-  gsLabel:{t:'Shared core infrastructure',s:'Ground segment',p:()=>V3(-3,14,-12),scene:'world'},
+  gsLabel:{t:'Shared core infrastructure',s:'Ground segment',p:()=>V3(4,1.5,8),scene:'world'},
+  noc:{t:'Network Operations Centre',s:'24/7 network monitoring',p:()=>V3(-2,11,-84),scene:'world'},
+  foc:{t:'Flight Operations',s:'Satellite command and control',p:()=>V3(-22,17.5,-80),scene:'world',left:true},
   streamL:{t:'Connectivity',s:'Voice, data, tracking and terminals',p:()=>streamL.getPointAt(.3),scene:'world',left:true},
   streamR:{t:'Earth observation',s:'Premium geospatial data',p:()=>streamR.getPointAt(.3),scene:'world'},
   fly0:{t:'Data world',s:'Fast ingestion and processing',p:()=>DC.nodes[0],scene:'world'},
@@ -958,7 +992,7 @@ function go(i, instant){
   if(i>=STOPS.length) i=0; i=Math.max(0,Math.min(STOPS.length-1,i)); if(i===idx&&!instant&&started) return; started=true;
   const T=clonePose(STOPS[i].pose); const from=clonePose(P); idx=i;
   let dur=reduce?.8:3.4;
-  if(instant){ P=T; trans=null; LAYERS.forEach(k=>cur[k]=targets(i)[k]); }
+  if(instant){ P=T; trans=null; arrivedAt=performance.now(); arrivedIdx=i; LAYERS.forEach(k=>cur[k]=targets(i)[k]); }
   else if(from.scene==='orbit'&&T.scene==='world'){ dur=reduce?1:6.4; trans={type:'dive',A:from,X:clonePose(DIVE_ORBIT),B:DIVE_WORLD(),T,t0:performance.now(),dur}; }
   else if(from.scene==='world'&&T.scene==='orbit'){ dur=reduce?1:6; trans={type:'rise',A:from,X:RISE_WORLD(from),B:clonePose(RISE_ORBIT),T,t0:performance.now(),dur}; }
   else if(T.scene==='world'){ const d=from.pos.distanceTo(T.pos); const inDC=p=>p.x>DCX-2&&p.x<DCX+82&&p.y<14; const hop=(d>120&&!inDC(from.pos))?Math.min(260,d*.18):0; dur=reduce?.8:Math.min(6.8,3.4+d/800); trans={type:'fly',A:from,T,hop,t0:performance.now(),dur}; }
@@ -994,7 +1028,8 @@ const veil=$('#veil');
 const tmp=V3(0,0,0), tmp2=V3(0,0,0);
 let last=performance.now(), clock=0, spinA=0;
 const rayHits=(cam,p)=>{ const d=p.clone().sub(cam); const len=d.length(); d.divideScalar(len); const b=cam.dot(d), c=cam.lengthSq()-.995*.995; const disc=b*b-c; if(disc<0) return false; const t=-b-Math.sqrt(disc); return t>0&&t<len-.002; };
-let driftK=0;
+let driftK=0; let arrivedAt=-1, arrivedIdx=-1;
+function STOP_T(title){ const s=STOPS[idx]; if(!s||s.panel.indexOf('<h1>'+title+'</h1>')<0) return -1; if(arrivedIdx!==idx||arrivedAt<0) return -1; return (performance.now()-arrivedAt)/1000; }
 function frame(now){
   const dtr=Math.min(.25,(now-last)/1000); const dt=Math.min(.05,dtr)*.55; last=now; clock+=dt;
   let veilO=0, haze=0;
@@ -1007,7 +1042,7 @@ function frame(now){
       else { const v=(u-sp)/(1-sp); const e=trans.type==='dive'?easeOut(v):sm(v); P=interp(trans.B,trans.T,e); P.scene=trans.T.scene; haze=Math.pow(1-v,2.4)*(trans.type==='dive'?1:.9); }
       veilO=Math.min(.92,haze);
     }
-    if(u>=1){ P=clonePose(trans.T); trans=null; veilO=0; }
+    if(u>=1){ P=clonePose(trans.T); trans=null; veilO=0; arrivedAt=performance.now(); arrivedIdx=idx; }
   }
   veil.style.opacity=(veilO*.35).toFixed(3);
   // spin the Earth on free stops, anchor it for UAE stops
@@ -1056,13 +1091,13 @@ function frame(now){
       BEAMS.pg.attributes.position.needsUpdate=true; BEAMS.rings.forEach((r,i)=>{ const ph=(clock*.22+i/BEAMS.rings.length)%1; r.material.opacity=cur.sky*(1-ph)*.7; const sc=2+ph*9; r.scale.set(sc,sc,1); }); }
     streamM.opacity=cur.streams*.6; STREAMS.pm.opacity=cur.streams;
     if(cur.streams>.01){ let k=0; LANES.forEach(l=>{ for(let j=0;j<STREAMS.per;j++){ l.c.getPointAt(((clock*.05+j/STREAMS.per+Math.abs(l.k)*.04)%1),tmp); STREAMS.pp[k++]=tmp.x; STREAMS.pp[k++]=tmp.y; STREAMS.pp[k++]=tmp.z; } }); STREAMS.pg.attributes.position.needsUpdate=true; }
-    DOME.wire.material.opacity=cur.dome*.16; DOME.sm.uniforms.uO.value=cur.dome; DOME.sm.uniforms.uT.value=clock;
+    DOME.wire.material.opacity=cur.dome*.42; DOME.dots.material.opacity=cur.dome*.85; DOME.sm.uniforms.uO.value=cur.dome; DOME.sm.uniforms.uT.value=clock;
     { const fp=DC.fp; for(let i=0;i<DC.flowN;i++){ fp[i*3]+=DC.fs[i]*dt; if(fp[i*3]>72) fp[i*3]=4; } DC.fg.attributes.position.needsUpdate=true;
       DC.ringM.opacity=cur.fly*.8; DC.nm.opacity=cur.fly; DC.ppm.opacity=cur.fly; for(let j=0;j<3;j++){ const a=Math.PI/2-(clock*.2+j/3)*TAU; DC.ppa.set([DC.c.x,DC.c.y+Math.sin(a)*DC.R,DC.c.z+Math.cos(a)*DC.R],j*3); } DC.ppg.attributes.position.needsUpdate=true; }
     // city
     const half=CITY.half; CITY.cars.forEach(c=>{ c.u+=c.s*c.dir*dt*(c.auto?1:1); if(c.u>1) c.u-=2; if(c.u<-1) c.u+=2; const along=c.u*half; const off=c.dir>0?2.2:-2.2; if(c.horiz){ c.m.position.set(along,0,c.c+off); c.m.rotation.y=c.dir>0?Math.PI/2:-Math.PI/2; } else { c.m.position.set(c.c-off,0,along); c.m.rotation.y=c.dir>0?0:Math.PI; } if(c.m.userData.ring){ const ph=(clock*.8)%1; c.m.userData.ring.material.opacity=cur.auto*(1-ph); const s=1+ph*7; c.m.userData.ring.scale.set(s,s,1); } });
     CITY.walkers.forEach(w=>{ w.m.position.z+=w.dir*w.s*dt; if(w.m.position.z>140) w.m.position.z=-140; if(w.m.position.z<-140) w.m.position.z=140; });
-    const bx=((clock*.12)%1)*2*half-half; CITY.band.position.x=bx; CITY.bandLine.position.x=bx; CITY.band.material.opacity=cur.scan*.1; CITY.bandLine.material.opacity=cur.scan;
+    const bx=((clock*.12)%1)*2*half-half; CITY.band.position.x=bx; CITY.bandLine.position.x=bx; CITY.band.material.opacity=cur.scan*.045; CITY.bandLine.material.opacity=cur.scan*.55;
     CITY.edges.forEach(e=>{ const hit=cur.scan>.05&&(bx>e.x||((clock*.12)%1)<0.02); e.e.material.opacity=hit?cur.scan*.95:Math.max(0,e.e.material.opacity-dt); });
     // land
     LAND.jacks.forEach((b,i)=>b.rotation.x=Math.sin(clock*1.3+i)*.28);
@@ -1071,14 +1106,22 @@ function frame(now){
       LAND.backhoe.position.set(x,Math.max(0,terrainH(SITES.land.x+x,SITES.land.z+z))+.35,z); LAND.backhoe.rotation.y=Math.atan2(vx,vz); const sp=Math.hypot(vx,vz)*.05; LAND.bhWheels.forEach(w=>{ w.piv.rotation.x+=sp*dt/(w.r*2); }); }
     LAND.trucks.forEach(t=>{ t.u=(t.u+dt*.018*t.dir+1)%1; t.t.position.set(-400+t.u*800,0,30+(t.dir>0?-2.4:2.4)); t.t.rotation.y=t.dir>0?Math.PI/2:-Math.PI/2; });
     // iot
+    IOT.towers.forEach((l,i)=>{ l.material.opacity=.35+.65*Math.max(0,Math.sin(clock*1.6+i*1.3)); });
     IOT.sens.forEach(s=>{ const ph=(clock*.3+s.ph)%1; s.ring.material.opacity=(.35+cur.iot*.65)*(1-ph); const k=1+ph*14; s.ring.scale.set(k,k,1); }); IOT.pulses.m.opacity=cur.iot; if(cur.iot>.01) updatePulses(IOT.pulses,clock,.35);
     // gov
-    { const ta=clock*.06; GOV.tank.position.set(Math.cos(ta)*36,0,Math.sin(ta)*36+10); GOV.tank.rotation.y=-ta; const a=clock*.4; GOV.drone.position.set(Math.cos(a)*45,26+Math.sin(a*2)*2,Math.sin(a)*45); GOV.drone.rotation.y=-a; GOV.pulses.m.opacity=cur.gov; if(cur.gov>.01) updatePulses(GOV.pulses,clock,.4); }
+    { const ta=clock*.06; GOV.tank.position.set(Math.cos(ta)*36,0,Math.sin(ta)*36+10); GOV.tank.rotation.y=-ta; { const T=GOV.TR; const off=clock*1.6*6; let k=0; for(const x of T.xs) for(let i=0;i<T.n;i++){ const [zz,yy]=T.at(off+i/T.n*T.per); T.arr[k++]=x; T.arr[k++]=yy+.15; T.arr[k++]=zz; } T.gg.attributes.position.needsUpdate=true; }
+    { const F=GOV.FJ; const ts=(STOP_T('Government')); const _C=V3(-90,60,140), _dh=V3(90,0,-140).normalize(); const P0=_C.clone().add(_dh.clone().multiplyScalar(1100)).add(V3(0,22,0)).add(GOV.g.position), P1=_C.clone().add(_dh.clone().multiplyScalar(-320)).add(V3(0,48,0)).add(GOV.g.position); const D=2.3, PER=15;
+      const lt=ts<0?-1:(ts%PER); const on=ts>=0&&lt<D+1.2; const u=Math.min(1.25,lt/D); const dir=P1.clone().sub(P0).normalize();
+      F.jets.forEach(({j,o},k)=>{ j.visible=on; if(!on) return; const pos=P0.clone().lerp(P1,u); pos.add(V3(o[0],o[1],o[2]).applyAxisAngle(V3(0,1,0),Math.atan2(dir.x,dir.z))); j.position.copy(pos); j.lookAt(pos.clone().add(dir)); j.rotateZ(Math.sin(u*Math.PI)*.12*(k===1?-1:1));
+        const T=F.trails[k]; T.hist.unshift(pos.clone()); if(T.hist.length>36) T.hist.pop(); for(let q=0;q<36;q++){ const h=T.hist[Math.min(q,T.hist.length-1)]; T.arr[q*3]=h.x; T.arr[q*3+1]=h.y; T.arr[q*3+2]=h.z; } T.tg.attributes.position.needsUpdate=true; T.tm.uniforms.uO.value=cur.gov; });
+      F.trails.forEach(T=>{ if(!on){ T.hist.length=0; T.tm.uniforms.uO.value=0; } });
+      const lead=F.jets[0].j; F.lm.opacity=on?cur.gov*.45:0; if(on) F.ln.geometry.setFromPoints([lead.position,V3(-80,420,60).add(GOV.g.position)]); } const a=clock*.4; GOV.drone.position.set(Math.cos(a)*45,26+Math.sin(a*2)*2,Math.sin(a)*45); GOV.drone.rotation.y=-a; GOV.pulses.m.opacity=cur.gov; if(cur.gov>.01) updatePulses(GOV.pulses,clock,.4); }
     PEOPLE.ph.rotation.y=.35+Math.sin(clock*.4)*.1; PEOPLE.ph.rotation.x=-.05; PEOPLE.ph.position.y=6+Math.sin(clock*.6)*.15; PEOPLE.fire.material.opacity=.75+.12*Math.sin(clock*3)*Math.sin(clock*1.9); PEOPLE.pulses.m.opacity=cur.people; if(cur.people>.01) updatePulses(PEOPLE.pulses,clock,.45);
     // sea
     { SEA.s1.position.z=((clock*3)%240)-120; SEA.s1.position.y=Math.sin(clock*.9)*.3; SEA.s1.rotation.z=Math.sin(clock*.7)*.015; SEA.wake.forEach((w,i)=>{ w.position.set((i%2?1:-1)*(3+i*.6),.6,SEA.s1.position.z-62-i*5); const k=6+i*1.4; w.scale.set(k,k*.35,1); w.material.opacity=.35*(1-i/24); }); SEA.pulses.m.opacity=cur.sea; if(cur.sea>.01) updatePulses(SEA.pulses,clock,.4); }
     // air
-    { const a=clock*.22; const R=36; const px=Math.cos(a)*R, pz=Math.sin(a)*R*.6; AIR.p.position.set(px,Math.sin(a*2)*2,pz); const vx=-Math.sin(a)*R, vz=Math.cos(a)*R*.6; AIR.p.rotation.set(0,Math.atan2(vx,vz),0); AIR.p.rotateZ(-.25); const arr=AIR.tArr; for(let k=0;k<80;k++){ const b=a-k*.012; arr[k*3]=Math.cos(b)*R; arr[k*3+1]=Math.sin(b*2)*2-.4; arr[k*3+2]=Math.sin(b)*R*.6; } AIR.trailG.attributes.position.needsUpdate=true;
+    { { const hb=AIR.heli; hb.position.set(2+Math.sin(clock*.18)*4,-13+Math.sin(clock*.5)*.8,30); hb.rotation.y=-.9+Math.sin(clock*.2)*.15; hb.userData.rotor.rotation.y+=dtr*14; const u=AIR.uav; { const ts=STOP_T('Aero'); const A0=V3(420,-30,-900), A1=V3(-16,-3.5,24); const D=7.5; const e=ts<0?0:Math.min(1,ts/D); const k=1-Math.pow(1-e,3); const pos=A0.clone().lerp(A1,k); pos.y+=Math.sin(clock*1.1)*.25*e; u.position.copy(pos); const dir=A1.clone().sub(A0).normalize(); u.rotation.set(0,Math.atan2(dir.x,dir.z),0); u.rotateX(.28*(1-k)); u.visible=false; } }
+  const a=clock*.22; const R=36; const px=Math.cos(a)*R, pz=Math.sin(a)*R*.6; AIR.p.position.set(px,7+Math.sin(a*2)*2,pz); const vx=-Math.sin(a)*R, vz=Math.cos(a)*R*.6; AIR.p.rotation.set(0,Math.atan2(vx,vz),0); AIR.p.rotateZ(-.25); const arr=AIR.tArr; for(let k=0;k<80;k++){ const b=a-k*.012; arr[k*3]=Math.cos(b)*R; arr[k*3+1]=7+Math.sin(b*2)*2-.4; arr[k*3+2]=Math.sin(b)*R*.6; } AIR.trailG.attributes.position.needsUpdate=true;
       const pw=AIR.p.position.clone().add(AIR.g.position); AIR.link.v2.copy(pw); AIR.lineObj.geometry.setFromPoints([AIR.link.v1,pw]); AIR.lm.opacity=cur.air*.6; AIR.pulses.m.opacity=cur.air; if(cur.air>.01) updatePulses(AIR.pulses,clock,.45); }
     GOV.lm.opacity=cur.gov*.6; PEOPLE.lm.opacity=cur.people*.6; SEA.lm.opacity=cur.sea*.6;
     renderer.setClearColor(0x0a0f47,1); renderer.setRenderTarget(RT); renderer.clear(); renderer.render(world,camera);

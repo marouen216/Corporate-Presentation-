@@ -10,7 +10,7 @@ index.html                 the presentation
 assets/three.min.js        three.js r128 (MIT licence), served locally
 assets/space42-assets.js   logos, satellites, models and map data
 assets/fonts/              Antarctica brand fonts (woff2)
-vercel.json                long-term caching for /assets
+vercel.json                caching rules (assets revalidate so updates show immediately)
 
 Controls: right arrow, space or click to advance; left arrow back; 1-6 chapters; F fullscreen; H hide interface.
 Deep links: /#s1 to /#s24
